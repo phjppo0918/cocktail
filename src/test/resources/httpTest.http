@@ -1,0 +1,36 @@
+###
+POST http://localhost:8080/ingredient
+Content-Type: application/json
+
+{
+  "name": "carrot",
+  "price": 500
+}
+
+###
+GET http://localhost:8080/ingredient
+
+###
+GET http://localhost:8080/ingredient/1
+
+###
+POST http://localhost:8080/ingredient/1/count
+Content-Type: application/json
+
+{
+  "count": 5
+}
+
+###
+PUT http://localhost:8080/ingredient/1
+Content-Type: application/json
+
+{
+  "name": "yyyy",
+  "count": 44
+}
+
+###
+DELETE http://localhost:8080/ingredient/1
+
+
