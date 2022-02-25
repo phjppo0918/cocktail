@@ -83,16 +83,14 @@ public class CocktailRecipeSvcImpl implements CocktailRecipeSvc {
 
     @Override
     public void makeCocktails(Map<Long, Integer> order) {
-        for (Long cocktailId : order.keySet()) {
-            List<CocktailRecipe> recipe = getByCocktail(cocktailId);
-            bringIngredient(order.get(cocktailId), recipe);
-        }
+        order.keySet().stream().peek(m ->
+                bringIngredient(order.get(m), getByCocktail(m)));
     }
 
     private void bringIngredient(Integer count, List<CocktailRecipe> recipe) {
-        for (CocktailRecipe cocktailRecipe : recipe) {
-            ingredientSvc.use(cocktailRecipe.getIngredient().getId(),
-                    cocktailRecipe.getIngredientAmount() * count);
-        }
+        recipe.stream().peek(m ->
+                ingredientSvc.use(m.getIngredient().getId(),
+                        m.getIngredientAmount() * count));
+
     }
 }

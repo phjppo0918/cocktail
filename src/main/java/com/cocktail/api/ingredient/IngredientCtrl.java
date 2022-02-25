@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("ingredient")
 @RequiredArgsConstructor
+@RequestMapping("ingredient")
 public class IngredientCtrl {
 
     private final IngredientSvc ingredientSvc;

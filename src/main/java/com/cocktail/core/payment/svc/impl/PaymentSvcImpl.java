@@ -2,15 +2,18 @@ package com.cocktail.core.payment.svc.impl;
 
 import com.cocktail.common.exceptions.businessError.EntityNotFoundException;
 import com.cocktail.core.payment.domain.Payment;
+import com.cocktail.core.payment.domain.PaymentMethod;
 import com.cocktail.core.payment.repo.PaymentRepo;
 import com.cocktail.core.payment.svc.PaymentSvc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,32 +60,50 @@ public class PaymentSvcImpl implements PaymentSvc {
     }
 
     @Override
-    public List<Payment> getPaymentByHour(LocalDateTime dateTime) {
-        return null;
+    public List<Payment> getPaymentByDateTimeRange(LocalDateTime start, LocalDateTime end) {
+        return paymentRepo.findAllByDatetimeRange(start, end);
     }
 
     @Override
-    public List<Payment> getPaymentByDay(LocalDate localDate) {
-        return null;
+    public Payment pay(Long id, PaymentMethod method) {
+        Payment target = getById(id);
+        target.setMethod(method);
+        target.setDatetime(LocalDateTime.now());
+        return paymentRepo.save(target);
     }
 
     @Override
-    public List<Payment> getPaymentByMonth(LocalDate localDate) {
-        return null;
+    public Map<Integer, Integer> getTotalSalesByDay() {
+        Map<Integer, List<Payment>> collects =
+                getAll().stream().collect(Collectors.groupingBy(p ->
+                        p.getDatetime().getDayOfYear()));
+
+        return statisticPayment(collects);
     }
 
     @Override
-    public List<Integer> getTotalSalesByDay() {
-        return null;
+    public Map<Integer, Integer> getTotalSalesByWeek() {
+        Map<Integer, List<Payment>> collects =
+                getAll().stream().collect(Collectors.groupingBy(p -> p.getDatetime().getDayOfWeek().getValue()));
+
+
+        return statisticPayment(collects);
     }
 
     @Override
-    public List<Integer> getTotalSalesByWeek() {
-        return null;
+    public Map<Integer, Integer> getTotalSalesByMonth() {
+        Map<Integer, List<Payment>> collects =
+                getAll().stream().collect(Collectors.groupingBy(p -> p.getDatetime().getMonthValue()));
+        return statisticPayment(collects);
     }
 
-    @Override
-    public List<Integer> getTotalSalesByMonth() {
-        return null;
+    private Map<Integer, Integer> statisticPayment(Map<Integer, List<Payment>> data) {
+        Map<Integer, Integer> result = new HashMap();
+        for (Integer k : data.keySet()) {
+            result.put(k, data.get(k).stream().
+                    map(Payment::getAmount)
+                    .reduce(Integer::sum).orElse(0));
+        }
+        return result;
     }
 }
