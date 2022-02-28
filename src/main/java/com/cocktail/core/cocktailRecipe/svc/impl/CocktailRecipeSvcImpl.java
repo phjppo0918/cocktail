@@ -29,12 +29,13 @@ public class CocktailRecipeSvcImpl implements CocktailRecipeSvc {
 
     @Override
     public List<CocktailRecipe> createAllByOneCocktail(Cocktail cocktail, Map<Long, Double> ingredients) {
-       return ingredients.keySet().stream().map(i ->
-            CocktailRecipe.builder().cocktail(cocktail)
-                    .ingredient(ingredientSvc.getById(i))
-                    .ingredientAmount(ingredients.get(i))
-                    .build()
-        ).collect(Collectors.toList());
+
+        return cocktailRecipeRepo.saveAll(ingredients.keySet().stream().map(i ->
+                CocktailRecipe.builder().cocktail(cocktail)
+                        .ingredient(ingredientSvc.getById(i))
+                        .ingredientAmount(ingredients.get(i))
+                        .build()
+        ).collect(Collectors.toList()));
     }
 
     @Override
